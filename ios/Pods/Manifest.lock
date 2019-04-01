@@ -1,0 +1,87 @@
+PODS:
+  - BVLinearGradient (2.5.4):
+    - React
+  - QBImagePickerController (3.4.0)
+  - React (0.59.2):
+    - React/Core (= 0.59.2)
+  - React/Core (0.59.2):
+    - yoga (= 0.59.2.React)
+  - React/DevSupport (0.59.2):
+    - React/Core
+    - React/RCTWebSocket
+  - React/fishhook (0.59.2)
+  - React/RCTActionSheet (0.59.2):
+    - React/Core
+  - React/RCTAnimation (0.59.2):
+    - React/Core
+  - React/RCTBlob (0.59.2):
+    - React/Core
+  - React/RCTGeolocation (0.59.2):
+    - React/Core
+  - React/RCTImage (0.59.2):
+    - React/Core
+    - React/RCTNetwork
+  - React/RCTLinkingIOS (0.59.2):
+    - React/Core
+  - React/RCTNetwork (0.59.2):
+    - React/Core
+  - React/RCTSettings (0.59.2):
+    - React/Core
+  - React/RCTText (0.59.2):
+    - React/Core
+  - React/RCTVibration (0.59.2):
+    - React/Core
+  - React/RCTWebSocket (0.59.2):
+    - React/Core
+    - React/fishhook
+    - React/RCTBlob
+  - RNImageCropPicker (0.21.3):
+    - QBImagePickerController
+    - React/Core
+    - RSKImageCropper
+  - RSKImageCropper (2.2.1)
+  - yoga (0.59.2.React)
+
+DEPENDENCIES:
+  - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
+  - React/Core (from `../node_modules/react-native`)
+  - React/DevSupport (from `../node_modules/react-native`)
+  - React/RCTActionSheet (from `../node_modules/react-native`)
+  - React/RCTAnimation (from `../node_modules/react-native`)
+  - React/RCTGeolocation (from `../node_modules/react-native`)
+  - React/RCTImage (from `../node_modules/react-native`)
+  - React/RCTLinkingIOS (from `../node_modules/react-native`)
+  - React/RCTNetwork (from `../node_modules/react-native`)
+  - React/RCTSettings (from `../node_modules/react-native`)
+  - React/RCTText (from `../node_modules/react-native`)
+  - React/RCTVibration (from `../node_modules/react-native`)
+  - React/RCTWebSocket (from `../node_modules/react-native`)
+  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - QBImagePickerController
+    - RSKImageCropper
+
+EXTERNAL SOURCES:
+  BVLinearGradient:
+    :path: "../node_modules/react-native-linear-gradient"
+  React:
+    :path: "../node_modules/react-native"
+  RNImageCropPicker:
+    :path: "../node_modules/react-native-image-crop-picker"
+  yoga:
+    :path: "../node_modules/react-native/ReactCommon/yoga"
+
+SPEC CHECKSUMS:
+  BVLinearGradient: b0b70acf63ee888829b7c2ebbf6b50e227396e55
+  QBImagePickerController: d54cf93db6decf26baf6ed3472f336ef35cae022
+  React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
+  RNImageCropPicker: 32ca4b9fef4e1b7b85ba69494242122948117e06
+  RSKImageCropper: 98296ad26b41753f796b6898d015509598f13d97
+  yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
+
+PODFILE CHECKSUM: eb6108437b61c7c9b0a3c55586ae0f90ebb854d5
+
+COCOAPODS: 1.5.3

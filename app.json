@@ -1,0 +1,7 @@
+{
+  "name": "appMdc",
+  "displayName": "appMdc",
+  "apiUrl": "http://172.30.155.165:8080/",
+  "uiAvatars": "https://ui-avatars.com/api/?length=3&color=ffffff&background=FD663D&size=256&name=",
+  "userManual": "https://cockpit.ag-it.com/assets/usermanual/user_manual.pdf"
+}
