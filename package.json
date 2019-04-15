@@ -27,14 +27,14 @@
     "android-bundle": "react-native bundle --platform android --dev false --entry-file ./index.android.js --bundle-output ./android/app/src/main/assets/index.android.bundle --sourcemap-output ./android/app/src/main/assets/index.android.map --assets-dest ./android/app/src/main/res/"
   },
   "dependencies": {
-    "react": "16.8.3",
-    "react-native": "0.59.2",
     "axios": "^0.18.0",
     "color": "1.0.3",
     "lodash": "4.17.10",
     "moment": "2.13.0",
     "native-base": "git+https://github.com/GeekyAnts/NativeBase.git#master",
     "prop-types": "^15.7.1",
+    "react": "16.8.3",
+    "react-native": "0.59.2",
     "react-native-base64": "0.0.2",
     "react-native-datepicker": "^1.7.2",
     "react-native-easy-grid": "^0.2.1",
