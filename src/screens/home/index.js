@@ -1,260 +1,192 @@
-import React, { Component } from "react";
-import { View, StatusBar, Dimensions, TouchableOpacity, Image, RefreshControl, Keyboard } from "react-native";
-import { Container, Button, Text, Header, Input, Tabs, Tab, TabHeading, Card, CardItem, Right, Thumbnail, Body, Content, Icon, Toast } from "native-base";
-import { getAsyncStoreLoad, apiCall } from '../../redux/actions/commonAction';
-import endPoint from '../../redux/service/endPoint';
-import styles from "./styles";
-import { convertToLetterCase } from '../../theme/variables/convert';
-import moment from 'moment';
-import Modal from 'react-native-modal';
-import { uiAvatars } from '../../../app.json';
+import { Body, Container, Content, Header, Icon, Input, Left, Right, Text } from "native-base";
+import { default as React } from "react";
+import { ActivityIndicator, Dimensions, FlatList, Image, RefreshControl, StatusBar, View } from "react-native";
 import Loading from '../../theme/components/Loading';
+import { apiCall } from './../../redux/actions/commonAction';
+import endPoint from './../../redux/service/endPoint';
 
-const logo = require("../../../assets/simplify.png");
-const iconSetting = require("../../../assets/iconSetting.png");
-const headtitle = require("../../../assets/headtitle.png");
-
+const HEIGHT = Dimensions.get('window').height;
+const WIDTH = Dimensions.get('window').width;
 class Home extends React.Component {
   static navigationOptions = { header: null }
 
   state = {
-    username: '',
-    password: '',
-    error: false,
-    dataUser: null,
-    myProfile: null,
-    implementationList: null,
-    eventList: null,
-    events: null,
-    myTask: null,
-    menu: null,
-    commonCodeIscat: null,
-    operationList: null,
     isRefreshing: false,
-    project: null,
-    search: null,
     isVisibleLoading: false,
-    currentTab: 0,
-    expanded: 10,
+    githubUsers: [],
+    perpage: 10,
+    onEndReachedCalledDuringMomentum: true,
+    loading: false,
+    searchText: null
   }
 
   componentWillMount = () => {
-    getAsyncStoreLoad('dataUser', this.loadToken);
-    if (this.props.navigation.state.params && this.props.navigation.state.params.dataPass) {
-      Toast.show({ text: this.props.navigation.state.params.dataPass.message, position: "bottom" })
+    console.log('a');
+    this.getLoadInbox()
+  }
+
+  onMomentumScrollBegin = () => {
+    let perpage = this.state.perpage
+    this.setState({ onEndReachedCalledDuringMomentum: false, perpage: perpage + 10 }, () => {
+      this.getLoadInbox()
+    })
+  }
+
+  getLoadInbox = () => {
+    console.log('b');
+    let sort = 'stars';
+    let order = 'desc';
+    let perpage = this.state.perpage;
+    let q = this.state.searchText
+    let api
+    if (q != '' && q != null) {
+      console.log('c');
+      sort = 'stars';
+      order = 'desc';
+      perpage = this.state.perpage;
+      api = endPoint.searchUsers + '?sort' + sort + '&order=' + order + '&per_page=' + perpage + '&q=' + q;
+    } else {
+      console.log('d');
+      sort = 'stars';
+      order = 'desc';
+      perpage = this.state.perpage;
+      api = endPoint.users + '?sort' + sort + '&order=' + order + '&per_page=' + perpage;
     }
-  }
-
-  loadToken = (dataUser) => {
-    this.setState({ dataUser: dataUser }, () => { this.loadHome(dataUser) });
-  }
-
-  loadHome = (dataUser) => {
-    const api = endPoint.getHome;
-    const data = {
-      email: dataUser.email,
-    };
+    console.log('sort',sort);
+    console.log('order',order);
+    console.log('perpage',perpage);
+    console.log('api',api);
     const header = {
       headers: {
         'Content-Type': 'application/json',
-        TKID: dataUser.TKID,
-        JDCID: dataUser.JDCID
       }
     }
-
-    apiCall.post(api, data, this.getHome, header);
+    apiCall.get(api, header, this.responeApi);
   }
 
-  getHome = (callback) => {
-    if (callback != null && callback.data.status == 1) {
-      let implementationList = callback.data.data[0].implementationList;
-      let operationList = callback.data.data[0].operationList;
-      this.setState({
-        myProfile: callback.data.data[0].myProfile,
-        implementationList: callback.data.data[0].implementationList,
-        eventList: callback.data.data[0].eventList,
-        events: callback.data.data[0].eventList,
-        myTask: callback.data.data[0].myTask,
-        operationList: callback.data.data[0].operationList,
-        project: implementationList.concat(operationList)
-      }, () => { this.loadMenu() });
-    }
-  }
-
-  loadMenu = () => {
-    const api = endPoint.menuRoleMobile;
-    const data = {
-      role: this.state.dataUser.role,
-    };
-    const header = {
-      headers: {
-        'Content-Type': 'application/json',
-        TKID: this.state.dataUser.TKID,
-        JDCID: this.state.dataUser.JDCID
-      }
-    }
-
-    apiCall.post(api, data, this.getMenu, header);
-  }
-
-  getMenu = (callback) => {
-    if (callback != null && callback.data.status == 1) {
-      let result = callback.data.data;
-      let menus = []
-      let men;
-      result.map((data, i) => {
-        if (data.parent == "PMG") {
-          menus.push(data);
+  responeApi = (callback) => {
+    console.log(callback);
+    let githubUsers = [];
+    this.setState({ isRefreshing: false });
+    if (callback && callback.status == 200) {
+      if (this.state.searchText != '' && this.state.searchText != null) {
+        if (callback.data.items.length > 0) {
+          githubUsers = callback.data.items;
+          if (this.state.isRefresh) {
+            this.setState({
+              githubUsers,
+              isRefresh: false
+            })
+          } else {
+            this.setState({ githubUsers });
+          }
+        } else {
+          if (this.state.isRefresh) {
+            this.setState({
+              githubUsers: callback.data.items
+            })
+          }
         }
-      })
-      this.setState({ menu: menus }, () => { this.loadDataSetting() });
-    }
-  }
-
-  loadDataSetting = () => {
-    const api = endPoint.getDataSettings;
-    const data = {
-      commoncode: "ISCAT"
-    };
-    const header = {
-      headers: {
-        'Content-Type': 'application/json',
-        TKID: this.state.dataUser.TKID,
-        JDCID: this.state.dataUser.JDCID
+      } else {
+        if (callback.data.length > 0) {
+          githubUsers = callback.data;
+          if (this.state.isRefresh) {
+            this.setState({
+              githubUsers,
+              isRefresh: false
+            })
+          } else {
+            this.setState(state => ({
+              githubUsers: [...state.githubUsers, ...githubUsers]
+            }));
+          }
+        } else {
+          if (this.state.isRefresh) {
+            this.setState({
+              githubUsers: callback.data
+            })
+          }
+        }
       }
     }
-
-    apiCall.post(api, data, this.getDataSettings, header);
+    this.setState({ loading: false });
   }
 
-  getDataSettings = (callback) => {
-    const result = [];
-    if (callback != null && callback.data.status == 1) {
-      callback.data.data.map((data, i) => {
-        const list = {
-          text: data.commdesc1,
-          value: data.commonkey
-        }
-        result.push(list)
-      })
-      this.setState({ commonCodeIscat: result, isRefreshing: false });
-    }
-  }
-
-  renderPhoto = () => {
-    if (this.state.myProfile != null) {
-      return <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', marginTop: -45 }}>
-        <TouchableOpacity onPress={() => this._myProfile()}>
-          {this.state.myProfile.urlPhoto && this.state.myProfile.urlPhoto.length > 43 ?
-            <Image style={{ width: 80, height: 80, marginBottom: 10, borderRadius: 40, borderColor: '#E5E5E5', borderWidth: 2 }} source={{ uri: this.state.myProfile.urlPhoto }} /> :
-            <Image source={{ uri: uiAvatars + this.state.myProfile.fullname }} style={{ width: 80, height: 80, marginBottom: 10, borderRadius: 40, borderColor: '#E5E5E5', borderWidth: 2 }} />}
-        </TouchableOpacity>
-        <Text style={{ color: '#401760', fontSize: 18, }}>{this.state.myProfile.fullname != null ? convertToLetterCase(this.state.myProfile.fullname) : null}</Text>
-        <Text style={{ color: '#F15A3A', fontSize: 14 }}>{this.state.myProfile != null ? this.state.myProfile.positionName : null}</Text>
-      </View>
-    }
-  }
-
-  renderHeaderRight = () => {
-    return <Right>
-      <Button transparent
-        onPress={() => this.setState({ modalVisible: true })}>
-        <Thumbnail square source={iconSetting} style={{ width: 20, height: 15 }} />
-      </Button>
-    </Right>
-  }
-
-  renderModalHeaderRight = () => {
-    return <View>
-      <TouchableOpacity style={{ padding: 20, borderBottomWidth: 1, borderColor: '#e2e2e2' }} onPress={() => this._myProfile()}>
-        <Text>My Profile</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={{ padding: 20, borderBottomWidth: 1, borderColor: '#e2e2e2' }} onPress={() => this._logout()}>
-        <Text>Logout</Text>
-      </TouchableOpacity>
-    </View>
-  }
-
-  _myProfile = () => {
-    this.props.navigation.navigate("Profile", { dataUser: this.state.dataUser, onNavigateBack: this.handleOnNavigateBack.bind(this) });
-  }
-
-  handleOnNavigateBack = (action) => {
-    if (action == 'refresh') {
-      this.setState({ isRefreshing: true });
-      getAsyncStoreLoad('dataUser', this.loadToken);
-    }
+  _filter = (text) => {
+    this.setState({ searchText: text, isRefresh: true, perpage: 10 }, () => { this.getLoadInbox() })
   }
 
   _onRefresh = () => {
-    this.setState({ isRefreshing: true });
-    getAsyncStoreLoad('dataUser', this.loadToken);
-  }
-
-  _changeTab = (i) => {
-    if (this.state.implementationList && this.state.operationList) {
-      let project = this.state.implementationList.concat(this.state.operationList);
-      let eventList = this.state.events;
-      this.setState({ project, eventList, search: null, currentTab: i, expanded: 10 });
-    }
-  }
-
-  renderExpanded = (data) => {
-    if (data != null) {
-      if (this.state.expanded < data.length) {
-        return <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', padding: 10 }}>
-          <Text onPress={() => this.expanded(10)} style={{ color: '#000', fontSize: 14 }}>Read more</Text>
-        </View>
-      }
-    }
-  }
-
-  expanded = (more) => {
-    this.setState({ isVisibleLoading: true });
-    let expanded = this.state.expanded;
-    let temp = expanded + more;
-    this.setState({ expanded: temp });
-    setTimeout(() => {
-      this.setState({ isVisibleLoading: false });
-    }, 500);
+    this.setState({ isRefreshing: true, isRefresh: true, perpage: 10 }, () => { this.getLoadInbox() })
   }
 
   render() {
     return (
       <Container>
-        <Modal
-          isVisible={this.state.modalVisible}
-          onBackdropPress={() => this.setState({ modalVisible: false })}>
-          <View style={{ backgroundColor: 'white', position: 'absolute', top: 24, right: 0, width: '50%' }}>
-            {this.renderModalHeaderRight()}
-          </View>
-        </Modal>
-        <Header style={{ backgroundColor: '#51288A' }}>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View style={{ flex: 5, paddingLeft: 0 }}>
-              {/* <Thumbnail square source={logo} style={{ width: '100%', height: '100%' }} /> */}
-            </View>
-            <View style={{ flex: 3, paddingRight: 10, height: '100%', justifyContent: 'center' }}>
-            </View>
-            <View style={{ flex: 2 }}>
-            </View>
-          </View>
+        <Header style={{ backgroundColor: '#868686' }}>
+          <Left />
+          <Body>
+            <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Github Users</Text>
+          </Body>
+          <Right />
         </Header>
         <StatusBar backgroundColor="#4E1679" barStyle="light-content" />
         <Content style={{ backgroundColor: '#FFF' }} refreshControl={
           <RefreshControl
             refreshing={this.state.isRefreshing}
             onRefresh={this._onRefresh}
-            backgroundColor={'#51288A'}
+            backgroundColor={'#868686'}
             title="Loading..."
           />
         }>
-          <Image source={headtitle} style={{ width: '100%', height: 125, resizeMode: 'stretch' }} />
-          {this.renderPhoto()}
+          <View>
+            <View horizontalRow wrap horizontal={true}>
+              <View style={{ flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center' }}>
+                <Icon name='search' style={{ fontSize: 18, color: '#8e8e93', marginLeft: 10 }} />
+                <Input
+                  placeholder="Search By Username"
+                  placeholderTextColor="#8e8e93"
+                  underlineColorAndroid="transparent"
+                  autoCapitalize="none"
+                  keyboardType="default"
+                  selectionColor="#8e8e93"
+                  onChangeText={(text) => this._filter(text)}
+                />
+              </View>
+              <View style={{ height: HEIGHT * 0.78 }}>
+                {this.state.githubUsers.length == 0
+                  ? <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: HEIGHT * 0.75 }}>
+                    <Icon type='FontAwesome' name='inbox' style={{ width: WIDTH * 0.09, height: WIDTH * 0.09, color: '#C7C7C7', fontSize: 40 }} />
+                    <Text>No Data</Text>
+                  </View>
+                  : <FlatList
+                    data={this.state.githubUsers}
+                    keyExtractor={(x, i) => i.toString()}
+                    onEndThreshold={0.5}
+                    onMomentumScrollBegin={this.onMomentumScrollBegin}
+                    ListFooterComponent={() =>
+                      this.state.loading
+                        ? <ActivityIndicator size="large" animating />
+                        : null}
+                    renderItem={({ item, i }) =>
+                      <View style={{ flexDirection: 'row' }}>
+                        <View>
+                          <View style={{ padding: 15 }}>
+                            <Image source={{ uri: item.avatar_url }} style={{ width: 30, height: 30, borderRadius: 15 }} />
+                          </View>
+                        </View>
+                        <View style={{ padding: 15, alignContent: 'center', alignItems: 'center' }}>
+                          <Text listTitle style={{ textAlign: 'center' }}>{item.login}</Text>
+                        </View>
+                      </View>
+                    }
+                  />}
+              </View>
+            </View>
+          </View>
         </Content>
         <Loading
           isVisible={this.state.isVisibleLoading}
-          submit={'info'}
         />
       </Container>
     );
