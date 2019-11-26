@@ -1,11 +1,6 @@
+import { NavigationActions, StackActions } from 'react-navigation';
+import { ERROR_STATUS, PENDING_STATUS, SUCCESS_STATUS } from './../../redux/actions/constAction';
 import service from './../service';
-import { StackActions, NavigationActions } from 'react-navigation';
-import {
-  PENDING_STATUS,
-  SUCCESS_STATUS,
-  ERROR_STATUS
-}
-  from './../../redux/actions/constAction';
 //------------------------------------------------------------------------------------------------------------------------=>
 /*<<MAP STATE TO PROPS>>*/
 //------------------------------------------------------------------------------------------------------------------------=>
